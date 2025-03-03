@@ -1,11 +1,9 @@
 FROM oven/bun:latest
 
 WORKDIR /app
-
-COPY package.json bun.lock ./
+COPY package.json bun.lockb ./
 RUN bun install
 
 COPY . .
-EXPOSE 3000
-
+EXPOSE 4000
 CMD ["bun", "--watch", "run", "src/index.ts"]

@@ -1,15 +1,17 @@
 version: "3.8"
 services:
-  express:
-    build: .
+  auth:
+    build: ./auth
     ports:
-      - "3000:3000"
+      - "4000:4000"
     volumes:
-      - .:/app
+      - ./auth:/app
     depends_on:
       - mongodb
     environment:
-      MONGO_URI: "mongodb://mongodb:27017/morzhdb"
+      MONGO_URI: "mongodb://mongodb:27017/authdb"
+      JWT_SECRET: "supersecretkey"
+
   mongodb:
     image: mongo:latest
     ports:
