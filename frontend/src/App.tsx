@@ -1,4 +1,6 @@
 import '@/index.css'
+import { ThemeProvider } from '@/components/buttonLayout'
+import Child from '@/components/button'
 
 function App() {
 
@@ -9,7 +11,10 @@ function App() {
       {/* <Button> Ресторан </Button> */}
       {/* <Button> Галерея </Button> */}
       {/* <Button> Контакты </Button> */}
-
+      <ThemeProvider>
+        <Child />
+        <Child />
+      </ThemeProvider>
     </>
   )
 }
