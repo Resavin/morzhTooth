@@ -12,7 +12,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ bgColor, setBgColor }}>
-      <div className={`min-h-screen flex items-center justify-center transition-all duration-500 ${bgColor}`}>
+      <div className={`min-h-screen flex flex-col items-center justify-center transition-all duration-500 ${bgColor}`}>
         {children}
       </div>
     </ThemeContext.Provider>
@@ -21,6 +21,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
+  console.log();
   if (!context) throw new Error("useTheme must be used within a ThemeProvider");
   return context;
 }

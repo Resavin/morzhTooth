@@ -12,8 +12,12 @@ function App() {
       {/* <Button> Галерея </Button> */}
       {/* <Button> Контакты </Button> */}
       <ThemeProvider>
-        <Child />
-        <Child />
+        <Child bgColor="bg-green-500" text="Общая информация">
+          dfsd
+        </Child>
+        <Child bgColor="bg-blue-500" text="lol">
+          lols
+        </Child>
       </ThemeProvider>
     </>
   )
