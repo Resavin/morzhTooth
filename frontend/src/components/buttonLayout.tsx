@@ -8,11 +8,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [bgColor, setBgColor] = useState("bg-gray-100");
+  const [bgColor, setBgColor] = useState("bg-gray-950");
 
   return (
     <ThemeContext.Provider value={{ bgColor, setBgColor }}>
-      <div className={`min-h-screen flex flex-col items-center justify-center transition-all duration-500 ${bgColor}`}>
+      <div
+        className={`min-h-screen flex flex-col items-center justify-center transition-all duration-500 ${bgColor}`}
+      >
         {children}
       </div>
     </ThemeContext.Provider>
