@@ -1,6 +1,6 @@
 import "@/index.css";
-import { ThemeProvider } from "@/components/buttonLayout";
-import Child from "@/components/button";
+import { ButtonLayout } from "@/components/buttonLayout";
+import { Button } from "@/components/button";
 
 function App() {
   return (
@@ -10,36 +10,61 @@ function App() {
       {/* <Button> Ресторан </Button> */}
       {/* <Button> Галерея </Button> */}
       {/* <Button> Контакты </Button> */}
-      <ThemeProvider>
+      <ButtonLayout>
         <div className="">
-          <Child bgColor="bg-green-950" text="Общая информация" leftChild={
-
-            <p className="text-white">
-              Гостиница Клык Моржа. Лучшая в мире. Во всём. (И мире, и во всех
-              аспектах).
-            </p>
-          }
+          <Button
+            bgColor="bg-green-950"
+            text="Общая информация"
+            leftChild={
+              <p className="size-fit text-white">
+                Гостиница Клык Моржа. Лучшая в мире. Во всём. (И мире, и во всех
+                аспектах). Placeholder аспектах). Placeholder аспектах).
+                Placeholder аспектах). Placeholder аспектах). Placeholder
+                аспектах). Placeholder аспектах). Placeholder аспектах).
+                Placeholder аспектах). Placeholder аспектах). Placeholder
+                аспектах). Placeholder аспектах). Placeholder
+              </p>
+            }
             rightChild={
-
-              <p className="text-white">Приходите</p>
-            }>
-          </Child>
-          <Child bgColor="bg-blue-950" text="Общая информация" leftChild={
-
-            <p className="text-white">
-              Гостиница Клык Моржа. Лучшая в мире. Во всём. (И мире, и во всех
-              аспектах).
-            </p>
-          }
+              <div>
+                <p className="size-full text-white">Приходите</p>
+              </div>
+            }
+          >
+          </Button>
+          <Button
+            bgColor="bg-blue-950"
+            text="Комнаты"
+            leftChild={
+              <p className="size-fit text-white">
+                Гостиница Клык Моржа. Лучшая в мире. Во всём. (И мире, и во всех
+                аспектах). Placeholder аспектах). Placeholder аспектах).
+                Placeholder аспектах). Placeholder аспектах). Placeholder
+                аспектах). Placeholder аспектах). Placeholder аспектах).
+                Placeholder аспектах). Placeholder аспектах). Placeholder
+                аспектах). Placeholder аспектах). Placeholder
+              </p>
+            }
             rightChild={
-
-              <p className="text-white">Приходите</p>
-            }>
-          </Child>
-          {/*   lols */}
-          {/* </Child> */}
+              <div className="size-full flex flex-wrap space-x-10 space-y-10">
+                <img
+                  src="https://picsum.photos/200/200"
+                  alt="Random Placeholder"
+                />
+                <img
+                  src="https://picsum.photos/200/200"
+                  alt="Random Placeholder"
+                />
+                <img
+                  src="https://picsum.photos/200/200"
+                  alt="Random Placeholder"
+                />
+              </div>
+            }
+          >
+          </Button>
         </div>
-      </ThemeProvider>
+      </ButtonLayout>
     </>
   );
 }

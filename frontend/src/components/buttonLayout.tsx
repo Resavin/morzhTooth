@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 interface ThemeContextType {
   bgColor: string;
@@ -7,7 +7,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
+export function ButtonLayout({ children }: { children: ReactNode }) {
   const [bgColor, setBgColor] = useState("bg-gray-950");
 
   return (
