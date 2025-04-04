@@ -19,9 +19,9 @@ app.use("/auth/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/authdb";
 mongoose
-    .connect(MONGO_URI)
-    .then(() => console.log("✅ Connected to MongoDB"))
-    .catch((error) => console.error("❌ MongoDB connection error:", error));
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((error) => console.error("❌ MongoDB connection error:", error));
 
 app.use("/auth", authRoutes);
 

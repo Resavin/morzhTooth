@@ -9,8 +9,31 @@ services:
     depends_on:
       - mongodb
     environment:
+      PORT: 4000
       MONGO_URI: "mongodb://mongodb:27017/authdb"
       JWT_SECRET: "supersecretkey"
+  user:
+    build: ./user
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./user:/app
+    environment:
+      PORT: 5000
+      MONGO_URI: "mongodb://mongodb:27017/userdb"
+    depends_on:
+      - mongodb
+  general:
+    build: ./general
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./general:/app
+    depends_on:
+      - mongodb
+    environment:
+      PORT: 3000
+      MONGO_URI: "mongodb://mongodb:27017/generaldb"
 
   mongodb:
     image: mongo:latest

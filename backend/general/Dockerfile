@@ -5,5 +5,5 @@ COPY package.json bun.lockb ./
 RUN bun install
 
 COPY . .
-EXPOSE 5000
+EXPOSE 6000
 CMD ["bun", "--watch", "run", "src/index.ts"]

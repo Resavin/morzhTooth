@@ -1,10 +1,10 @@
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 export const swaggerDefinition = {
   openapi: "3.0.0",
   info: {
-    title: "Auth Service API",
+    title: "General Service API",
     version: "1.0.0",
-    description: "This is the API documentation for the Auth microservice.",
+    description: "This is the API documentation for the General microservice.",
   },
   servers: [
     {
