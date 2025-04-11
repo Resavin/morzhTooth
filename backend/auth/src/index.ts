@@ -5,11 +5,13 @@ import authRoutes from "./auth.routes";
 import swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
 import { swaggerOptions } from "./swagger";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Generate swagger specification
 const swaggerSpec = swaggerJSDoc(swaggerOptions);

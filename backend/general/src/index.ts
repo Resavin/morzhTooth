@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import generalRoutes from "./general.routes";
@@ -13,10 +14,9 @@ const MONGO_URI = process.env.MONGO_URI ||
   "mongodb://localhost:27017/generaldb";
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 // Generate swagger specification
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
-
 // Serve Swagger docs at /api-docs
 app.use("/general/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

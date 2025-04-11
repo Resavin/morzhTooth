@@ -5,10 +5,12 @@ import userRoutes from "./user.routes";
 import { swaggerOptions } from "./swagger";
 import swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/userdb";

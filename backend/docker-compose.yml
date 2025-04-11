@@ -33,6 +33,7 @@ services:
       - mongodb
     environment:
       PORT: 3000
+      JWT_SECRET: "supersecretkey"
       MONGO_URI: "mongodb://mongodb:27017/generaldb"
 
   mongodb:
