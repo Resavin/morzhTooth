@@ -2,13 +2,14 @@ import { Link } from "react-router"; // Import Link from react-router-dom
 import { ReactNode } from "react";
 import { useTheme } from "@/components/buttonLayout";
 interface ButtonProps {
-  bgColor: string;
+  bgColor?: string;
   text: string;
   to?: string;
   onClick?: () => void;
   leftChild?: ReactNode;
   rightChild?: ReactNode;
   children?: ReactNode;
+  mouseAction?: () => void;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -18,13 +19,27 @@ export const Button: React.FC<ButtonProps> = ({
   onClick,
   leftChild,
   rightChild,
+  mouseAction,
 }) => {
   const { setBgColor } = useTheme();
-
+  // Handler function for clarity
+  const handleMouseEnter = () => {
+    // Only call setBgColor if bgColor is a valid string
+    if (typeof bgColor === "string") {
+      setBgColor(bgColor);
+    }
+    // mouseAction!();
+    // console.log(mouseAction);
+    mouseAction ? mouseAction() : console.log("hell");
+    // Or, if you are sure empty string is not a valid/intended color:
+    // if (bgColor) {
+    //   setBgColor(bgColor);
+    // }
+  };
   return (
     <div
       onClick={onClick}
-      onMouseEnter={() => setBgColor(bgColor)}
+      onMouseEnter={handleMouseEnter}
       className="relative size-fit my-24 group "
     >
       {/* Left content */}
@@ -33,15 +48,15 @@ export const Button: React.FC<ButtonProps> = ({
       </div>
 
       {/* Center animated stack */}
-      <div className="inset-0 relative flex items-center justify-center h-full">
+      <div className="inset-0 relative flex items-center justify-center h-full opacity-70">
         {/* Top button */}
-        <div className="absolute w-56 h-16 text-white flex items-center justify-center border border-slate-500 rounded-md bg-slate-700 z-[3] transform transition-transform duration-300 ease-in-out group-hover:translate-y-[-24%]">
+        <div className="absolute w-56 h-16 text-white flex items-center justify-center border border-emerald-500 rounded-md bg-emerald-700 z-[3] transform transition-transform duration-300 ease-in-out group-hover:translate-y-[-24%]">
           {to ? <Link className="absolute w-full h-full" to={to} /> : <div />}
           {text}
         </div>
 
         {/* Middle layer */}
-        <div className="absolute w-56 h-16 text-white flex items-center justify-center border-2 border-slate-500 rounded-md bg-zinc-700 z-[2] transform transition-transform duration-300 ease-in-out group-hover:translate-y-[-12%]" />
+        <div className="absolute w-56 h-16 text-white flex items-center justify-center border-2 border-emerald-500 rounded-md opacity-50 bg-blue-400 z-[2] transform transition-transform duration-300 ease-in-out group-hover:translate-y-[-12%]" />
 
         {/* Bottom layer */}
         {/* <div className="absolute w-56 h-16 text-white flex items-center justify-center border-2 border-black rounded-md bg-maroon z-[1]" /> */}

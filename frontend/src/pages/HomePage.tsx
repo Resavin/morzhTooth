@@ -1,18 +1,45 @@
 import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/button";
 import { RoomList } from "@/components/roomList";
 import { TextSplitter } from "@/components/textSplitter";
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
-
+  const [isRoomListBlurred, setIsRoomListBlurred] = useState(false); // State to control blur
   const exitGame = () => {
-    navigate(-1); // Better than window.history.back()
+    if (localStorage.getItem("jwt")) {
+      localStorage.removeItem("jwt");
+      localStorage.removeItem("username"); // Clea
+      window.location.reload();
+    } else {
+
+      alert("Не могу закрыть окно, откатываюсь в истории")
+      navigate(-1); // Better than window.history.back()
+    }
+    // Redirect to a blank page and attempt to close it
+    // window.open("/login");
+    // window.close();
   };
+  const handleMouseEnterRoomButton = () => {
+    setIsRoomListBlurred(true); // Apply blur immediately on hover
+    setTimeout(() => {
+      setIsRoomListBlurred(false); // Remove blur after a delay (e.g., 500ms)
+    }, 250); // Adjust the delay as needed (in milliseconds)
+  };
+  const [username, setUsername] = useState<string | null>(null); // State to store the username
+  useEffect(() => {
+    // Check if the user is logged in (e.g., via localStorage or global state)
+    const storedUsername = localStorage.getItem("username"); // Replace with your auth logic
+    if (storedUsername) {
+      setUsername(storedUsername); // Update the username state
+    }
+  }, []);
+
   return (
     <div className="h-[30rem]">
       <Button
-        bgColor="bg-lime-800"
+        bgColor="bg-lime-700"
         text="Общая информация"
         leftChild={
           <TextSplitter
@@ -49,20 +76,28 @@ export const HomePage: React.FC = () => {
           >
           </TextSplitter>
         }
-        rightChild={<RoomList />}
+        rightChild={
+          <div
+            className={`transition-all duration-300 ${isRoomListBlurred ? "blur-sm" : ""
+              }`}
+          >
+            <RoomList />
+          </div>
+        }
+        mouseAction={handleMouseEnterRoomButton} // Trigger on hover
       >
       </Button>
 
       <Button
-        bgColor="bg-neutral-800"
-        text="Вход"
+        bgColor="bg-cyan-700"
+        text={username ? "Релог" : "Вход"}
         to="/login"
       >
       </Button>
       <Button
         onClick={exitGame}
-        bgColor="bg-black"
-        text="Выход"
+        bgColor="bg-teal-700"
+        text={username ? `Выход, ${username}` : `Выход`}
       >
       </Button>
     </div>
