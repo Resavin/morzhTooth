@@ -11,3 +11,8 @@ export interface Room {
   price: number;
   images: string[];
 }
+export interface IBooking {
+  roomId: string;
+  startDate: string; // Or Date, depending on your needs. For API transfers, ISO strings are common.
+  endDate: string;
+}
