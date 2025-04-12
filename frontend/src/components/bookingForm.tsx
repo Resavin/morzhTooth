@@ -96,7 +96,6 @@ export const BookingForm: React.FC<BookingFormProps> = ({ roomId }) => {
 
     // Check if the user is logged in by verifying a token (this is a simple example)
     const token = localStorage.getItem("jwt");
-    const isLoggedIn = Boolean(token);
     try {
       const response = await fetch("http://localhost:3000/general/bookings", {
         method: "POST",
@@ -147,7 +146,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ roomId }) => {
           placeholderText="даты"
           // Exclude dates that are already booked
           excludeDateIntervals={bookedRanges}
-          highlightDates={bookedRanges}
+          // highlightDates={bookedRanges}
           // minDate prevents selecting any date before today
           minDate={new Date()}
           className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"

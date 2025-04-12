@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; // Import useState and useEffect
+import { useEffect, useState } from "react"; // Import useState and useEffect
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router"; // Corrected imports
 import "@/index.css";
 import { ButtonLayout } from "@/components/buttonLayout";

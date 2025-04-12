@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router"; // 1. Import Link
 import { getRooms } from "@/api/general";
 import { Room } from "@/types/types";

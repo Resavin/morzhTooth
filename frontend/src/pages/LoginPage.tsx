@@ -4,12 +4,10 @@ export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(""); // State for error messages
-  const [successMessage, setSuccessMessage] = useState(""); // State for success messages
 
   // --- LOGIN HANDLER ---
   const handleLogin = async () => {
     setError(""); // Clear previous messages
-    setSuccessMessage("");
 
     if (!username || !password) {
       setError("поля не заполнены");
@@ -61,7 +59,6 @@ export const LoginPage: React.FC = () => {
   // --- REGISTRATION HANDLER ---
   const handleRegister = async () => {
     setError(""); // Clear previous messages
-    setSuccessMessage("");
 
     if (!username || !password) {
       setError("поля не заполнены");
