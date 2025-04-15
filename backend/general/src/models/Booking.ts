@@ -1,10 +1,11 @@
 import mongoose, { Document } from "mongoose";
 import { IBooking } from "../../../types/types";
 
-export interface BookingDocument extends IBooking, Document { }
+export interface BookingDocument extends IBooking, Document {}
 
 const bookingSchema = new mongoose.Schema<BookingDocument>({
   roomId: { type: mongoose.Schema.Types.ObjectId, ref: "Room", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // <-- Add this line
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
 });

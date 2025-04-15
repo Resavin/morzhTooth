@@ -4,6 +4,7 @@ import {
   createRoom,
   getAllBookings,
   getAllRooms,
+  getBookingsByUserId,
   getRoomById,
 } from "./general.service";
 import { authMiddleware } from "./middleware";
@@ -229,10 +230,13 @@ router.get("/rooms/:roomId", async (req: Request, res: Response) => {
  *                 message:
  *                   type: string
  */
+interface AuthRequest extends Request {
+  user: string;
+}
 router.post(
   "/bookings",
   authMiddleware,
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     const { roomId, startDate, endDate } = req.body;
     if (!roomId || !startDate || !endDate) {
       return res.status(400).json({
@@ -240,7 +244,14 @@ router.post(
       });
     }
     try {
-      const booking = await createBooking({ roomId, startDate, endDate });
+      const userId = req.user;
+      console.log(userId);
+      const booking = await createBooking({
+        roomId,
+        userId,
+        startDate,
+        endDate,
+      });
       res.status(201).json(booking);
     } catch (err) {
       console.error("Error creating booking:", err);
@@ -285,6 +296,7 @@ router.post(
  *                 message:
  *                   type: string
  */
+
 router.get("/bookings", async (req: Request, res: Response) => {
   try {
     const bookings = await getAllBookings();
@@ -294,4 +306,22 @@ router.get("/bookings", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to retrieve bookings." });
   }
 });
+
+// GET /bookings/user/:userId
+router.get(
+  "/bookings/user/:userId",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      console.log("haja");
+      const { userId } = req.params;
+      const bookings = await getBookingsByUserId(userId);
+      res.status(200).json(bookings);
+    } catch (err) {
+      console.error("Error fetching user bookings:", err);
+      res.status(500).json({ message: "Failed to retrieve bookings." });
+    }
+  },
+);
+
 export default router;

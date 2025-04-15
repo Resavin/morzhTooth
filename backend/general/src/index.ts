@@ -25,6 +25,8 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB (General Service)"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
+mongoose.connection.dropCollection("Booking");
+
 app.use("/general", generalRoutes);
 
 app.listen(PORT, () => {

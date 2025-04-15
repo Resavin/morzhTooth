@@ -38,6 +38,7 @@ services:
 
   mongodb:
     image: mongo:latest
+    command: ["--quiet", "--logpath", "/dev/null", "--logappend"]
     ports:
       - "27017:27017"
     volumes:

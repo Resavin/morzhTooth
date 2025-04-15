@@ -6,6 +6,9 @@ import { IRoom, Room } from "./models/Room";
 import Booking, { BookingDocument } from "./models/Booking";
 import { IBooking } from "../../../types/types";
 
+export async function getBookingsByUserId(userId: string) {
+  return Booking.find({ userId });
+}
 export const getAllBookings = async (): Promise<BookingDocument[]> => {
   // Room.find() returns documents, so the Promise resolves to RoomDocument[]
   return Booking.find();

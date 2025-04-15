@@ -3,8 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 interface JwtPayload {
-  userId: string;
-  // add any other claims you may have
+  id: string;
 }
 
 export const authMiddleware = (
@@ -22,14 +21,17 @@ export const authMiddleware = (
 
   const token = authHeader.split(" ")[1];
 
+  const secret = process.env.JWT_SECRET || "defaultsecret"; // use environment variable
+  const decoded = jwt.verify(token, secret) as JwtPayload;
   try {
     const secret = process.env.JWT_SECRET || "defaultsecret"; // use environment variable
     const decoded = jwt.verify(token, secret) as JwtPayload;
 
     // Optional: You can attach user info to req object so subsequent handlers can use it.
-    (req as any).user = decoded;
+    (req as any).user = decoded.id;
     next();
   } catch (err) {
+    console.log(err);
     return res.status(401).json({ message: "Unauthorized: Invalid token." });
   }
 };
