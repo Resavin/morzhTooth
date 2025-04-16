@@ -30,7 +30,7 @@ export const Button: React.FC<ButtonProps> = ({
     }
     // mouseAction!();
     // console.log(mouseAction);
-    mouseAction ? mouseAction() : console.log("hell");
+    mouseAction ? mouseAction() : null;
     // Or, if you are sure empty string is not a valid/intended color:
     // if (bgColor) {
     //   setBgColor(bgColor);

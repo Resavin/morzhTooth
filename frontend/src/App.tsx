@@ -6,6 +6,7 @@ import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { NotFound } from "@/pages/NotFound";
 import { RoomDetailPage } from "@/pages/RoomDetailPage";
+import { BookingPage } from "@/pages/BookingPage";
 import morzhik from "@/assets/morzhik.png";
 // TODO: gradient bg
 // shadow on buttons
@@ -59,6 +60,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
+          <Route path="/bookings" element={<BookingPage />} />
         </Routes>
       </ButtonLayout>
     </Router>

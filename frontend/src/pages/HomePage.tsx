@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
 import { RoomList } from "@/components/roomList";
 import { TextSplitter } from "@/components/textSplitter";
@@ -13,8 +13,7 @@ export const HomePage: React.FC = () => {
       localStorage.removeItem("username"); // Clea
       window.location.reload();
     } else {
-
-      alert("Не могу закрыть окно, откатываюсь в истории")
+      alert("Не могу закрыть окно, откатываюсь в истории");
       navigate(-1); // Better than window.history.back()
     }
     // Redirect to a blank page and attempt to close it
@@ -78,8 +77,9 @@ export const HomePage: React.FC = () => {
         }
         rightChild={
           <div
-            className={`transition-all duration-300 ${isRoomListBlurred ? "blur-sm" : ""
-              }`}
+            className={`transition-all duration-300 ${
+              isRoomListBlurred ? "blur-sm" : ""
+            }`}
           >
             <RoomList />
           </div>
@@ -90,8 +90,8 @@ export const HomePage: React.FC = () => {
 
       <Button
         bgColor="bg-cyan-700"
-        text={username ? "Релог" : "Вход"}
-        to="/login"
+        text={username ? "Список бронирований" : "Вход"}
+        to={username ? "/bookings" : "/login"}
       >
       </Button>
       <Button

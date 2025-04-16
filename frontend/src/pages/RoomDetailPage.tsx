@@ -92,10 +92,10 @@ export const RoomDetailPage: React.FC = () => {
 
       {/* Display Images (Example: Simple Gallery) */}
       <div className="mb-3">
-        <h2 className="text-xl font-semibold mb-4">Фотографии</h2>
+        <h2 className="text-xl max-w-xl font-semibold mb-4">Фотографии</h2>
         {room.images && room.images.length > 0
           ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {room.images.map((image, index) => (
                 <img
                   key={index}

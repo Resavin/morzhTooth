@@ -109,7 +109,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ roomId }) => {
         const errorData = await response.json();
         setError(errorData.message || "Failed to create booking");
       } else {
-        setSuccessMessage("Booking created successfully!");
+        setSuccessMessage("бронирование создано :)");
         // Update bookedRanges state so the new booking shows immediately
         setBookedRanges((prev) => [
           ...prev,
