@@ -1,51 +1,35 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router"; // 1. Import Link
-import { getRooms } from "@/api/general";
-import { Room } from "@/types/types";
+import React, { useEffect } from "react";
+import { Link } from "react-router";
+import { observer } from "mobx-react-lite";
+import { bookingStore } from "@/stores/BookingStore"; // Adjust path as needed
 
-export const RoomList = () => {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+export const RoomList: React.FC = observer(() => {
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const data = await getRooms();
-        setRooms(data);
-        setLoading(false);
-      } catch (error) {
-        setError("Error fetching rooms");
-        setLoading(false);
-      }
-    };
-
-    fetchRooms();
+    // Only fetch if not already loaded
+    if (bookingStore.rooms.length === 0 && !bookingStore.loading) {
+      bookingStore.fetchRooms();
+    }
   }, []);
 
-  if (loading) {
+  if (bookingStore.loading) {
     return (
       <div className="text-center text-lg text-white">Loading rooms...</div>
-    ); // Added text-white
+    );
   }
 
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+  if (bookingStore.error) {
+    return <div className="text-center text-red-500">{bookingStore.error}</div>;
   }
 
   return (
     <div className="mx-auto p-4 text-white">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-1 ">
-        {rooms.map((room) => (
-          // 2. Wrap the div content with Link
+        {bookingStore.rooms.map((room) => (
           <Link
-            key={room._id} // 3. Move key to the Link component
-            to={`/rooms/${room._id}`} // 4. Define the destination URL (adjust path as needed)
-            className="block bg-sky-700  rounded-sm w-[18rem] mr-20 p-4 border-1 shadow-sky-900 shadow-2xl border-sky-800 hover:bg-sky-600 hover:border-sky-700 transition-shadow"
-            // 5. Apply styling classes to the Link component
-            // Added 'block' to ensure it behaves like the div container
+            key={room._id}
+            to={`/rooms/${room._id}`}
+            className="block bg-sky-700 rounded-sm w-[18rem] mr-20 p-4 border-1 shadow-sky-900 shadow-2xl border-sky-800 hover:bg-sky-600 hover:border-sky-700 transition-shadow"
           >
-            {/* The content of the card remains inside the Link */}
             <h3 className="text-xl font-bold">{room.name}</h3>
             <p className="">{room.description}</p>
             <p className="text-lg font-semibold mt-2">Цена: ${room.price}</p>
@@ -58,9 +42,9 @@ export const RoomList = () => {
                 />
               )}
             </div>
-          </Link> // 6. Close the Link component
+          </Link>
         ))}
       </div>
     </div>
   );
-};
+});

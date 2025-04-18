@@ -1,128 +1,65 @@
-import React, { useEffect, useState } from "react";
-import { IBooking } from "@/types/types";
+import React, { useEffect } from "react";
+import { observer } from "mobx-react-lite";
+import { BookingStoreContext } from "@/stores/BookingStoreContext";
 import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router";
+import { Booking } from "@/types/types";
 
-interface Booking extends IBooking {
-  _id: string;
-}
 interface JwtPayload {
   id: string;
 }
 
-export const BookingPage: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [roomInfo, setRoomInfo] = useState<
-    Record<string, { name: string; images: string[]; price: number }>
-  >({});
+function getUserIdFromToken(): string | null {
+  const token = localStorage.getItem("jwt");
+  if (!token) return null;
+  try {
+    const parsedPayload = jwtDecode(token) as JwtPayload;
+    return parsedPayload.id;
+  } catch (err) {
+    console.error("Failed to decode JWT:", err);
+    return null;
+  }
+}
 
-  const getUserIdFromToken = (): string | null => {
-    const token = localStorage.getItem("jwt");
-    if (!token) return null;
-    try {
-      const parsedPayload = jwtDecode(token) as JwtPayload;
-      return parsedPayload.id;
-    } catch (err) {
-      console.error("Failed to decode JWT:", err);
-      return null;
-    }
-  };
+function getNights(start: string, end: string) {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const diffTime = endDate.getTime() - startDate.getTime();
+  return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+}
 
-  const fetchBookings = async (userId: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `http://localhost:3000/general/bookings/user/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          },
-        },
-      );
-      if (!response.ok) throw new Error("Failed to fetch bookings");
-      const data = await response.json();
-      setBookings(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchRoomInfo = async () => {
-      const uniqueRoomIds = Array.from(new Set(bookings.map((b) => b.roomId)));
-      const info: Record<
-        string,
-        { name: string; images: string[]; price: number }
-      > = {};
-      await Promise.all(
-        uniqueRoomIds.map(async (roomId) => {
-          try {
-            const response = await fetch(
-              `http://localhost:3000/general/rooms/${roomId}`,
-            );
-            if (response.ok) {
-              const room = await response.json();
-              info[roomId] = {
-                name: room.name,
-                images: room.images || [],
-                price: room.price || 0,
-              };
-            } else {
-              info[roomId] = { name: "Unknown Room", images: [], price: 0 };
-            }
-          } catch {
-            info[roomId] = { name: "Unknown Room", images: [], price: 0 };
-          }
-        }),
-      );
-      setRoomInfo(info);
-    };
-    if (bookings.length > 0) {
-      fetchRoomInfo();
-    }
-  }, [bookings]);
+export const BookingPage: React.FC = observer(() => {
+  const bookingStore = React.useContext(BookingStoreContext);
 
   useEffect(() => {
     const userId = getUserIdFromToken();
-    if (userId) {
-      fetchBookings(userId);
+    const token = localStorage.getItem("jwt");
+    if (userId && token) {
+      bookingStore.fetchBookings(userId, token);
     } else {
-      setError("User not authenticated");
-      setLoading(false);
+      bookingStore.error = "вы не авторизованы";
+      bookingStore.loading = false;
     }
+    // eslint-disable-next-line
   }, []);
 
-  function getNights(start: string, end: string) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diffTime = endDate.getTime() - startDate.getTime();
-    return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-  }
-
-  if (loading) {
+  if (bookingStore.loading) {
     return <div className="text-center text-lg">Loading bookings...</div>;
   }
 
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+  if (bookingStore.error) {
+    return <div className="text-center text-red-500">{bookingStore.error}</div>;
   }
 
   return (
     <div className="text-white w-128 p-4">
       <h1 className="text-2xl font-bold mb-4">ваши бронирования</h1>
-      {bookings.length === 0
+      {bookingStore.bookings.length === 0
         ? <p>бронирования не найдены</p>
         : (
           <ul className="space-y-4">
-            {bookings.map((booking) => {
-              const info = roomInfo[booking.roomId];
+            {bookingStore.bookings.map((booking) => {
+              const info = bookingStore.roomInfo[booking.roomId];
               const firstImage = info?.images?.[0];
               const nights = getNights(booking.startDate, booking.endDate);
               const totalPrice = info?.price ? info.price * nights : 0;
@@ -139,7 +76,7 @@ export const BookingPage: React.FC = () => {
                     <div className="flex-1 flex justify-between items-center">
                       <div>
                         <h2 className="text-xl font-semibold">
-                          {info?.name || "Loading..."}
+                          {info?.name || "загрузка..."}
                         </h2>
                         <p className="text-white">
                           {new Date(booking.startDate).toLocaleDateString()} -
@@ -147,8 +84,7 @@ export const BookingPage: React.FC = () => {
                           {new Date(booking.endDate).toLocaleDateString()}
                         </p>
                         <p className="text-gray-400 text-sm">
-                          {nights} ночей ×{" "}
-                          {info?.price ? `$${info.price}` : "?"}
+                          {nights} ночей × {info?.price ? `$${info.price}` : "?"}
                         </p>
                       </div>
                       <p className="text-lg font-bold">
@@ -163,4 +99,4 @@ export const BookingPage: React.FC = () => {
         )}
     </div>
   );
-};
+});

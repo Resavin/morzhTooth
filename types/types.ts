@@ -17,3 +17,6 @@ export interface IBooking {
   startDate: string; // Or Date, depending on your needs. For API transfers, ISO strings are common.
   endDate: string;
 }
+export interface Booking extends IBooking {
+  _id: string;
+}

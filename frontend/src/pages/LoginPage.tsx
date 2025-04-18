@@ -1,16 +1,21 @@
 import React, { useState } from "react";
+import { observer } from "mobx-react-lite";
+import { UserStoreContext } from "@/stores/UserStoreContext";
+import { useNavigate } from "react-router";
 
-export const LoginPage: React.FC = () => {
+export const LoginPage: React.FC = observer(() => {
+  const userStore = React.useContext(UserStoreContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); // State for error messages
+  const navigate = useNavigate();
 
-  // --- LOGIN HANDLER ---
   const handleLogin = async () => {
-    setError(""); // Clear previous messages
+    userStore.setError("");
+    userStore.setLoading(true);
 
     if (!username || !password) {
-      setError("поля не заполнены");
+      userStore.setError("поля не заполнены");
+      userStore.setLoading(false);
       return;
     }
 
@@ -43,30 +48,32 @@ export const LoginPage: React.FC = () => {
         throw new Error("вроде зашёл, но токена нет");
       }
 
-      localStorage.setItem("jwt", data.token);
-      localStorage.setItem("username", username);
-      window.location.href = "/"; // Or use useNavigate for SPA routing
+      userStore.setUser(data.token, username);
+      userStore.setLoading(false);
+      navigate("/"); // SPA navigation
     } catch (error) {
+      userStore.setLoading(false);
       if (error instanceof Error) {
-        setError(error.message);
+        userStore.setError(error.message);
       } else {
-        setError("непонятная ошибка произошла");
+        userStore.setError("непонятная ошибка произошла");
         console.error("Caught non-Error object during login:", error);
       }
     }
   };
 
-  // --- REGISTRATION HANDLER ---
   const handleRegister = async () => {
-    setError(""); // Clear previous messages
+    userStore.setError("");
+    userStore.setLoading(true);
 
     if (!username || !password) {
-      setError("поля не заполнены");
+      userStore.setError("поля не заполнены");
+      userStore.setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:4000/auth/register", { // Correct endpoint
+      const response = await fetch("http://localhost:4000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -80,20 +87,18 @@ export const LoginPage: React.FC = () => {
             errorMessage = errorData.message;
           }
         } catch (jsonError) {
-          console.error(
-            "Failed to parse registration error response:",
-            jsonError,
-          );
+          console.error("Failed to parse registration error response:", jsonError);
         }
         throw new Error(errorMessage);
       }
 
-      handleLogin();
+      await handleLogin();
     } catch (error) {
+      userStore.setLoading(false);
       if (error instanceof Error) {
-        setError(error.message);
+        userStore.setError(error.message);
       } else {
-        setError("An unexpected registration error occurred.");
+        userStore.setError("An unexpected registration error occurred.");
         console.error("Caught non-Error object during registration:", error);
       }
     }
@@ -123,6 +128,7 @@ export const LoginPage: React.FC = () => {
         type="button"
         onClick={handleLogin}
         className="hover-hatch bg-transparent hover:bg-emerald-500 mt-3 p-2 border "
+        disabled={userStore.loading}
       >
         вход
       </button>
@@ -130,19 +136,17 @@ export const LoginPage: React.FC = () => {
         type="button"
         onClick={handleRegister}
         className="hover-hatch bg-transparent hover:bg-blue-500 p-2 border rounded-md"
+        disabled={userStore.loading}
       >
         рег
       </button>
 
-      {/* --- DEDICATED MESSAGE AREA --- */}
-      {error &&
+      {userStore.error &&
         (
           <div className="h-6 border border-amber-50 text-center my-1">
-            {/* Display error messages */}
-            {error && <p className="bg-rose-700 text-sm h-5">{error}</p>}
+            <p className="bg-rose-700 text-sm h-5">{userStore.error}</p>
           </div>
         )}
-      {/* --- END MESSAGE AREA --- */}
     </div>
   );
-};
+});
