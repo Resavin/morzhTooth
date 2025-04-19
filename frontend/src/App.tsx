@@ -8,8 +8,9 @@ import { NotFound } from "@/pages/NotFound";
 import { RoomDetailPage } from "@/pages/RoomDetailPage";
 import { BookingPage } from "@/pages/BookingPage";
 import morzhik from "@/assets/morzhik.png";
-import { BookingStoreProvider } from "@/stores/BookingStoreContext";
-import { UserStoreProvider } from "@/stores/UserStoreContext";
+import { Provider } from "react-redux";
+import { store } from "@/store";
+
 // TODO: gradient bg
 // shadow on buttons
 // what to do with the place to the right?
@@ -31,49 +32,46 @@ function App() {
   }, []); // Empty dependency array ensures this runs only once on mount
 
   return (
-    <UserStoreProvider>
-      <BookingStoreProvider>
-        <Router>
-          {/* ButtonLayout likely needs to be inside Router if it uses useLocation */}
-          <ButtonLayout>
-            <Link
-              to="/"
-              className="flex flex-col items-center text-center mb-4"
-            >
-              {/* Added flex layout for Link content */}
-              <img
-                src={morzhik}
-                className="h-48 mix-blend-luminosity" // mix-blend might not work well without a specific background
-                alt="Morzhik"
-              />
-              <div className="text-white text-2xl mt-2">
-                {/* Added margin-top */}
-                Клык Моржа
-                <div
-                  className={`
+    <Provider store={store}>
+      <Router>
+        {/* ButtonLayout likely needs to be inside Router if it uses useLocation */}
+        <ButtonLayout>
+          <Link
+            to="/"
+            className="flex flex-col items-center text-center mb-4"
+          >
+            {/* Added flex layout for Link content */}
+            <img
+              src={morzhik}
+              className="h-48 mix-blend-luminosity" // mix-blend might not work well without a specific background
+              alt="Morzhik"
+            />
+            <div className="text-white text-2xl mt-2">
+              {/* Added margin-top */}
+              Клык Моржа
+              <div
+                className={`
                  ${/* Ensures proper layout */ ""}
                 -mb-8 transition-opacity duration-[3000ms] ease-in-out ${/* Transition setup: 3 seconds */ ""}
-                ${isVersionVisible
-                      ? "opacity-100"
-                      : "opacity-0"
-                    } ${/* Conditional opacity */ ""}
+                ${
+                  isVersionVisible ? "opacity-100" : "opacity-0"
+                } ${/* Conditional opacity */ ""}
               `}
-                >
-                  v2.00
-                </div>
+              >
+                v2.00
               </div>
-            </Link>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="*" element={<NotFound />} />
-              <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
-              <Route path="/bookings" element={<BookingPage />} />
-            </Routes>
-          </ButtonLayout>
-        </Router>
-      </BookingStoreProvider>
-    </UserStoreProvider>
+            </div>
+          </Link>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<NotFound />} />
+            <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
+            <Route path="/bookings" element={<BookingPage />} />
+          </Routes>
+        </ButtonLayout>
+      </Router>
+    </Provider>
   );
 }
 

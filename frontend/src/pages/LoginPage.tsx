@@ -1,21 +1,32 @@
 import React, { useState } from "react";
-import { observer } from "mobx-react-lite";
-import { UserStoreContext } from "@/stores/UserStoreContext";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loadFromStorage,
+  setError,
+  setLoading,
+  setUser,
+} from "@/store/userSlice";
+import { RootState } from "@/store";
 import { useNavigate } from "react-router";
 
-export const LoginPage: React.FC = observer(() => {
-  const userStore = React.useContext(UserStoreContext);
+export const LoginPage: React.FC = () => {
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    dispatch(loadFromStorage());
+  }, [dispatch]);
+
   const handleLogin = async () => {
-    userStore.setError("");
-    userStore.setLoading(true);
+    dispatch(setError(""));
+    dispatch(setLoading(true));
 
     if (!username || !password) {
-      userStore.setError("поля не заполнены");
-      userStore.setLoading(false);
+      dispatch(setError("поля не заполнены"));
+      dispatch(setLoading(false));
       return;
     }
 
@@ -48,27 +59,27 @@ export const LoginPage: React.FC = observer(() => {
         throw new Error("вроде зашёл, но токена нет");
       }
 
-      userStore.setUser(data.token, username);
-      userStore.setLoading(false);
-      navigate("/"); // SPA navigation
+      dispatch(setUser({ token: data.token, username }));
+      dispatch(setLoading(false));
+      navigate("/");
     } catch (error) {
-      userStore.setLoading(false);
+      dispatch(setLoading(false));
       if (error instanceof Error) {
-        userStore.setError(error.message);
+        dispatch(setError(error.message));
       } else {
-        userStore.setError("непонятная ошибка произошла");
+        dispatch(setError("непонятная ошибка произошла"));
         console.error("Caught non-Error object during login:", error);
       }
     }
   };
 
   const handleRegister = async () => {
-    userStore.setError("");
-    userStore.setLoading(true);
+    dispatch(setError(""));
+    dispatch(setLoading(true));
 
     if (!username || !password) {
-      userStore.setError("поля не заполнены");
-      userStore.setLoading(false);
+      dispatch(setError("поля не заполнены"));
+      dispatch(setLoading(false));
       return;
     }
 
@@ -87,18 +98,21 @@ export const LoginPage: React.FC = observer(() => {
             errorMessage = errorData.message;
           }
         } catch (jsonError) {
-          console.error("Failed to parse registration error response:", jsonError);
+          console.error(
+            "Failed to parse registration error response:",
+            jsonError,
+          );
         }
         throw new Error(errorMessage);
       }
 
       await handleLogin();
     } catch (error) {
-      userStore.setLoading(false);
+      dispatch(setLoading(false));
       if (error instanceof Error) {
-        userStore.setError(error.message);
+        dispatch(setError(error.message));
       } else {
-        userStore.setError("An unexpected registration error occurred.");
+        dispatch(setError("An unexpected registration error occurred."));
         console.error("Caught non-Error object during registration:", error);
       }
     }
@@ -128,7 +142,7 @@ export const LoginPage: React.FC = observer(() => {
         type="button"
         onClick={handleLogin}
         className="hover-hatch bg-transparent hover:bg-emerald-500 mt-3 p-2 border "
-        disabled={userStore.loading}
+        disabled={user.loading}
       >
         вход
       </button>
@@ -136,17 +150,17 @@ export const LoginPage: React.FC = observer(() => {
         type="button"
         onClick={handleRegister}
         className="hover-hatch bg-transparent hover:bg-blue-500 p-2 border rounded-md"
-        disabled={userStore.loading}
+        disabled={user.loading}
       >
         рег
       </button>
 
-      {userStore.error &&
+      {user.error &&
         (
           <div className="h-6 border border-amber-50 text-center my-1">
-            <p className="bg-rose-700 text-sm h-5">{userStore.error}</p>
+            <p className="bg-rose-700 text-sm h-5">{user.error}</p>
           </div>
         )}
     </div>
   );
-});
+};

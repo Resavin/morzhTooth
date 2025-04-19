@@ -1,30 +1,35 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router";
-import { observer } from "mobx-react-lite";
-import { bookingStore } from "@/stores/BookingStore"; // Adjust path as needed
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRooms } from "@/store/roomsSlice";
+import { AppDispatch, RootState } from "@/store";
 
-export const RoomList: React.FC = observer(() => {
+export const RoomList: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { rooms, loading, error } = useSelector((state: RootState) =>
+    state.rooms
+  );
+
   useEffect(() => {
-    // Only fetch if not already loaded
-    if (bookingStore.rooms.length === 0 && !bookingStore.loading) {
-      bookingStore.fetchRooms();
+    if (rooms.length === 0 && !loading) {
+      dispatch(fetchRooms());
     }
-  }, []);
+  }, [dispatch, rooms.length, loading]);
 
-  if (bookingStore.loading) {
+  if (loading) {
     return (
       <div className="text-center text-lg text-white">Loading rooms...</div>
     );
   }
 
-  if (bookingStore.error) {
-    return <div className="text-center text-red-500">{bookingStore.error}</div>;
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (
     <div className="mx-auto p-4 text-white">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-1 ">
-        {bookingStore.rooms.map((room) => (
+        {rooms.map((room) => (
           <Link
             key={room._id}
             to={`/rooms/${room._id}`}
@@ -47,4 +52,4 @@ export const RoomList: React.FC = observer(() => {
       </div>
     </div>
   );
-});
+};

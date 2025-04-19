@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import { observer } from "mobx-react-lite";
-import { BookingStoreContext } from "@/stores/BookingStoreContext";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBookings, fetchRoomInfo } from "@/store/bookingsSlice";
+import { RootState } from "@/store";
 import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router";
-import { Booking } from "@/types/types";
 
 interface JwtPayload {
   id: string;
@@ -28,38 +28,44 @@ function getNights(start: string, end: string) {
   return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 }
 
-export const BookingPage: React.FC = observer(() => {
-  const bookingStore = React.useContext(BookingStoreContext);
+export const BookingPage: React.FC = () => {
+  const dispatch = useDispatch();
+  const { bookings, roomInfo, loading, error } = useSelector(
+    (state: RootState) => state.bookings,
+  );
 
   useEffect(() => {
     const userId = getUserIdFromToken();
     const token = localStorage.getItem("jwt");
     if (userId && token) {
-      bookingStore.fetchBookings(userId, token);
-    } else {
-      bookingStore.error = "вы не авторизованы";
-      bookingStore.loading = false;
+      dispatch(fetchBookings({ userId, token }) as any);
     }
-    // eslint-disable-next-line
-  }, []);
+  }, [dispatch]);
 
-  if (bookingStore.loading) {
+  useEffect(() => {
+    if (bookings.length > 0) {
+      const uniqueRoomIds = Array.from(new Set(bookings.map((b) => b.roomId)));
+      dispatch(fetchRoomInfo(uniqueRoomIds) as any);
+    }
+  }, [bookings, dispatch]);
+
+  if (loading) {
     return <div className="text-center text-lg">Loading bookings...</div>;
   }
 
-  if (bookingStore.error) {
-    return <div className="text-center text-red-500">{bookingStore.error}</div>;
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (
     <div className="text-white w-128 p-4">
       <h1 className="text-2xl font-bold mb-4">ваши бронирования</h1>
-      {bookingStore.bookings.length === 0
+      {bookings.length === 0
         ? <p>бронирования не найдены</p>
         : (
           <ul className="space-y-4">
-            {bookingStore.bookings.map((booking) => {
-              const info = bookingStore.roomInfo[booking.roomId];
+            {bookings.map((booking) => {
+              const info = roomInfo[booking.roomId];
               const firstImage = info?.images?.[0];
               const nights = getNights(booking.startDate, booking.endDate);
               const totalPrice = info?.price ? info.price * nights : 0;
@@ -76,7 +82,7 @@ export const BookingPage: React.FC = observer(() => {
                     <div className="flex-1 flex justify-between items-center">
                       <div>
                         <h2 className="text-xl font-semibold">
-                          {info?.name || "загрузка..."}
+                          {info?.name || "Loading..."}
                         </h2>
                         <p className="text-white">
                           {new Date(booking.startDate).toLocaleDateString()} -
@@ -84,7 +90,8 @@ export const BookingPage: React.FC = observer(() => {
                           {new Date(booking.endDate).toLocaleDateString()}
                         </p>
                         <p className="text-gray-400 text-sm">
-                          {nights} ночей × {info?.price ? `$${info.price}` : "?"}
+                          {nights} ночей ×{" "}
+                          {info?.price ? `$${info.price}` : "?"}
                         </p>
                       </div>
                       <p className="text-lg font-bold">
@@ -99,4 +106,4 @@ export const BookingPage: React.FC = observer(() => {
         )}
     </div>
   );
-});
+};
