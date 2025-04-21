@@ -1,120 +1,43 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  loadFromStorage,
-  setError,
-  setLoading,
-  setUser,
-} from "@/store/userSlice";
-import { RootState } from "@/store";
+import { useLoginMutation, useRegisterMutation } from "@/store/authApi";
 import { useNavigate } from "react-router";
 
 export const LoginPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.user);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [login, { isLoading: isLoggingIn }] = useLoginMutation();
+  const [register, { isLoading: isRegistering }] = useRegisterMutation();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    dispatch(loadFromStorage());
-  }, [dispatch]);
-
   const handleLogin = async () => {
-    dispatch(setError(""));
-    dispatch(setLoading(true));
-
+    setError("");
     if (!username || !password) {
-      dispatch(setError("поля не заполнены"));
-      dispatch(setLoading(false));
+      setError("поля не заполнены");
       return;
     }
-
     try {
-      const response = await fetch("http://localhost:4000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = `Login failed: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData && errorData.message) {
-            errorMessage = errorData.message;
-          }
-        } catch (jsonError) {
-          console.error("ошибка парсинга логин респонса", jsonError);
-        }
-        throw new Error(errorMessage);
-      }
-
-      interface LoginResponse {
-        token: string;
-      }
-      const data = (await response.json()) as LoginResponse;
-
-      if (!data.token) {
-        throw new Error("вроде зашёл, но токена нет");
-      }
-
-      dispatch(setUser({ token: data.token, username }));
-      dispatch(setLoading(false));
+      const data = await login({ username, password }).unwrap();
+      if (!data.token) throw new Error("вроде зашёл, но токена нет");
+      localStorage.setItem("jwt", data.token);
+      localStorage.setItem("username", username);
       navigate("/");
-    } catch (error) {
-      dispatch(setLoading(false));
-      if (error instanceof Error) {
-        dispatch(setError(error.message));
-      } else {
-        dispatch(setError("непонятная ошибка произошла"));
-        console.error("Caught non-Error object during login:", error);
-      }
+    } catch (err: any) {
+      setError(err?.data?.message || err.message || "ошибка входа");
     }
   };
 
   const handleRegister = async () => {
-    dispatch(setError(""));
-    dispatch(setLoading(true));
-
+    setError("");
     if (!username || !password) {
-      dispatch(setError("поля не заполнены"));
-      dispatch(setLoading(false));
+      setError("поля не заполнены");
       return;
     }
-
     try {
-      const response = await fetch("http://localhost:4000/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = `Registration failed: ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          if (errorData && errorData.message) {
-            errorMessage = errorData.message;
-          }
-        } catch (jsonError) {
-          console.error(
-            "Failed to parse registration error response:",
-            jsonError,
-          );
-        }
-        throw new Error(errorMessage);
-      }
-
+      await register({ username, password }).unwrap();
       await handleLogin();
-    } catch (error) {
-      dispatch(setLoading(false));
-      if (error instanceof Error) {
-        dispatch(setError(error.message));
-      } else {
-        dispatch(setError("An unexpected registration error occurred."));
-        console.error("Caught non-Error object during registration:", error);
-      }
+    } catch (err: any) {
+      setError(err?.data?.message || err.message || "ошибка регистрации");
     }
   };
 
@@ -137,12 +60,11 @@ export const LoginPage: React.FC = () => {
         required
         className="p-2 border rounded text-white"
       />
-
       <button
         type="button"
         onClick={handleLogin}
         className="hover-hatch bg-transparent hover:bg-emerald-500 mt-3 p-2 border "
-        disabled={user.loading}
+        disabled={isLoggingIn}
       >
         вход
       </button>
@@ -150,17 +72,15 @@ export const LoginPage: React.FC = () => {
         type="button"
         onClick={handleRegister}
         className="hover-hatch bg-transparent hover:bg-blue-500 p-2 border rounded-md"
-        disabled={user.loading}
+        disabled={isRegistering}
       >
         рег
       </button>
-
-      {user.error &&
-        (
-          <div className="h-6 border border-amber-50 text-center my-1">
-            <p className="bg-rose-700 text-sm h-5">{user.error}</p>
-          </div>
-        )}
+      {error && (
+        <div className="h-6 border border-amber-50 text-center my-1">
+          <p className="bg-rose-700 text-sm h-5">{error}</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // Don't remove!
-import { IBooking } from "@/types/types";
+import { Booking } from "@/types/types";
 interface BookingFormProps {
   roomId: string;
 }
@@ -88,7 +88,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ roomId }) => {
       }
     }
 
-    const bookingData: IBooking = {
+    const bookingData: Booking = {
       roomId,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),

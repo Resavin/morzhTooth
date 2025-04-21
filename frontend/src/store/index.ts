@@ -1,14 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./userSlice";
-import bookingsReducer from "./bookingsSlice";
-import roomsReducer from "./roomsSlice";
+import { api } from "./api";
+import { authApi } from "./authApi";
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
-    bookings: bookingsReducer,
-    rooms: roomsReducer,
+    [api.reducerPath]: api.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware, authApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

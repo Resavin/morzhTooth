@@ -1,7 +1,5 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchBookings, fetchRoomInfo } from "@/store/bookingsSlice";
-import { RootState } from "@/store";
+import React from "react";
+import { useGetBookingsByUserQuery, useGetRoomByIdQuery } from "@/store/api";
 import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router";
 
@@ -29,74 +27,67 @@ function getNights(start: string, end: string) {
 }
 
 export const BookingPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const { bookings, roomInfo, loading, error } = useSelector(
-    (state: RootState) => state.bookings,
-  );
+  const userId = getUserIdFromToken();
+  const {
+    data: bookings,
+    isLoading,
+    error,
+  } = useGetBookingsByUserQuery(userId!, { skip: !userId });
 
-  useEffect(() => {
-    const userId = getUserIdFromToken();
-    const token = localStorage.getItem("jwt");
-    if (userId && token) {
-      dispatch(fetchBookings({ userId, token }) as any);
-    }
-  }, [dispatch]);
+  // Helper to fetch room info for each booking
+  const RoomInfo = ({ roomId }: { roomId: string }) => {
+    const { data: room, isLoading } = useGetRoomByIdQuery(roomId);
+    if (isLoading) return <span>Loading...</span>;
+    if (!room) return <span>Unknown Room</span>;
+    return (
+      <>
+        <h2 className="text-xl font-semibold">{room.name}</h2>
+        {room.images.length > 0 && (
+          <img
+            src={room.images[0]}
+            alt={room.name}
+            className="w-24 h-16 text-center object-cover rounded"
+          />
+        )}
+      </>
+    );
+  };
 
-  useEffect(() => {
-    if (bookings.length > 0) {
-      const uniqueRoomIds = Array.from(new Set(bookings.map((b) => b.roomId)));
-      dispatch(fetchRoomInfo(uniqueRoomIds) as any);
-    }
-  }, [bookings, dispatch]);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="text-center text-lg">Loading bookings...</div>;
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return (
+      <div className="text-center text-red-500">
+        Ошибка загрузки бронирований
+      </div>
+    );
   }
 
   return (
     <div className="text-white w-128 p-4">
       <h1 className="text-2xl font-bold mb-4">ваши бронирования</h1>
-      {bookings.length === 0
+      {!bookings || bookings.length === 0
         ? <p>бронирования не найдены</p>
         : (
           <ul className="space-y-4">
             {bookings.map((booking) => {
-              const info = roomInfo[booking.roomId];
-              const firstImage = info?.images?.[0];
               const nights = getNights(booking.startDate, booking.endDate);
-              const totalPrice = info?.price ? info.price * nights : 0;
               return (
                 <Link to={`/rooms/${booking.roomId}`} key={booking._id}>
                   <li className="p-4 border rounded-lg shadow-sm flex items-center gap-4">
-                    {firstImage && (
-                      <img
-                        src={firstImage}
-                        alt={info?.name || "Room"}
-                        className="w-24 h-16 text-center object-cover rounded"
-                      />
-                    )}
+                    <RoomInfo roomId={booking.roomId} />
                     <div className="flex-1 flex justify-between items-center">
                       <div>
-                        <h2 className="text-xl font-semibold">
-                          {info?.name || "Loading..."}
-                        </h2>
                         <p className="text-white">
                           {new Date(booking.startDate).toLocaleDateString()} -
                           {" "}
                           {new Date(booking.endDate).toLocaleDateString()}
                         </p>
-                        <p className="text-gray-400 text-sm">
-                          {nights} ночей ×{" "}
-                          {info?.price ? `$${info.price}` : "?"}
-                        </p>
+                        {/* Room price and total price */}
+                        <RoomPrice roomId={booking.roomId} nights={nights} />
                       </div>
-                      <p className="text-lg font-bold">
-                        {totalPrice ? `$${totalPrice}` : ""}
-                      </p>
                     </div>
                   </li>
                 </Link>
@@ -105,5 +96,21 @@ export const BookingPage: React.FC = () => {
           </ul>
         )}
     </div>
+  );
+};
+
+// Helper component to show price
+const RoomPrice: React.FC<{ roomId: string; nights: number }> = ({
+  roomId,
+  nights,
+}) => {
+  const { data: room } = useGetRoomByIdQuery(roomId);
+  if (!room) return null;
+  const totalPrice = room.price * nights;
+  return (
+    <p className="text-gray-400 text-sm">
+      {nights} ночей × ${room.price} ={" "}
+      <span className="text-lg font-bold">${totalPrice}</span>
+    </p>
   );
 };

@@ -1,35 +1,26 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchRooms } from "@/store/roomsSlice";
-import { AppDispatch, RootState } from "@/store";
+import { useGetRoomsQuery } from "@/store/api";
 
 export const RoomList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { rooms, loading, error } = useSelector((state: RootState) =>
-    state.rooms
-  );
+  const { data: rooms, isLoading, error } = useGetRoomsQuery();
 
-  useEffect(() => {
-    if (rooms.length === 0 && !loading) {
-      dispatch(fetchRooms());
-    }
-  }, [dispatch, rooms.length, loading]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-center text-lg text-white">Loading rooms...</div>
     );
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return (
+      <div className="text-center text-red-500">Ошибка загрузки комнат</div>
+    );
   }
 
   return (
     <div className="mx-auto p-4 text-white">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-1 ">
-        {rooms.map((room) => (
+        {rooms?.map((room) => (
           <Link
             key={room._id}
             to={`/rooms/${room._id}`}
